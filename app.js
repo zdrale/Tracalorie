@@ -12,9 +12,25 @@ const ItemCtrl = (function(){
 
   //Data structure  /State
   const data = {
-    items: [],
+    items: [
+      {
+        id: 0, name:'Stake Dinner', calories:1200
+      },
+      {
+        id: 1, name:'Coockie', calories:400
+      },
+      {
+        id: 2, name:'Eggs', calories:300
+      }
+    ],
     currentItem: null,
     totalCalories: 0
+  }
+
+  return {
+    logData: function(){
+      return data; 
+    }
   }
 })();
 //UI Controller
