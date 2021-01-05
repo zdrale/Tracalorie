@@ -64,6 +64,21 @@ const ItemCtrl = (function(){
 
       return found; 
     },
+
+    updateItem:function(name, calories) {
+      //Calories to number
+      calories = parseInt(calories);
+
+      let found = null;
+      data.items.forEach(function(item){
+        if(item.id === data.currentItem.id) {
+          item.name = name;
+          item.calories = calories;
+          found = item;
+        } 
+      });
+      return found;
+    },
     setCurrentItem: function(item) {
       data.currentItem = item;
     },
@@ -93,6 +108,7 @@ const UICtrl = (function(){
   //If somehow id gets changed 
   const UISelectors =  {
     itemList: '#item-list',
+    listItems: '#item-list li',
     addBtn: '.add-btn',
     updateBtn: '.update-btn',
     deleteBtn: '.delete-btn',
@@ -151,6 +167,23 @@ const UICtrl = (function(){
       //Insert item 
       document.querySelector(UISelectors.itemList).insertAdjacentElement('beforeend', li);
     },
+    updateListItem: function(item) {
+      let listItems = document.querySelectorAll(UISelectors.listItems);
+
+      //Turn node list into array
+      listItems = Array.from(listItems);
+
+      listItems.forEach(function(listItem){
+        const itemID = listItem.getAttribute('id');
+        
+        if(itemID === `item-${item.id}`) {
+          document.querySelector(`#${itemID}`).innerHTML = `<strong> ${item.name}: </strong> <em>${item.calories} Calories</em>
+          <a href="#" class="secondary-content">
+            <i class="edit-item fas fa-pencil-alt"></i> 
+          </a>`;
+        }
+      });
+    },
     getSelectors: function() {
       return UISelectors;
     },
@@ -190,8 +223,21 @@ const App = (function(ItemCtrl, UICtrl){
     //add item event
     document.querySelector(UISelectors.addBtn).addEventListener('click', itemAddSubmit);
 
+    //Disable submit on enter
+
+    document.addEventListener('keypress', function(e){
+      if(e.keyCode === 13 || e.which === 13) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
     //Edit icon click event
     document.querySelector(UISelectors.itemList).addEventListener('click', itemEditClick);
+    
+    //Update item event
+    document.querySelector(UISelectors.updateBtn).addEventListener('click', itemUpdateSubmit);
+
   }
 
   //Add item subit
@@ -243,6 +289,30 @@ const App = (function(ItemCtrl, UICtrl){
       //Add item to form
       UICtrl.addItemToForm();
     }
+    e.preventDefault();
+  }
+
+  //Udpate item submit
+
+  const itemUpdateSubmit = function (e) {
+    //Get item input
+    const input  =  UICtrl.getItemInput();
+
+    //Update item
+    const updatedItem = ItemCtrl.updateItem(input.name, input.calories);
+
+    //update ui
+
+    UICtrl.updateListItem(updatedItem);
+
+
+    //Get the total calories
+    const totalCalories = ItemCtrl.getTotalCalories();
+
+    //Add total calories to UI
+    UICtrl.showTotalCalories(totalCalories);
+
+    UICtrl.clearEditState();
     e.preventDefault();
   }
 
