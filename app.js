@@ -52,6 +52,24 @@ const ItemCtrl = (function(){
 
        return newItem;
     },
+    getItemById: function(id){
+      let found = null;
+      //Loop throug  items
+
+      data.items.forEach(function(item){
+        if(item.id === id) {
+          found = item;   
+        }
+      });
+
+      return found; 
+    },
+    setCurrentItem: function(item) {
+      data.currentItem = item;
+    },
+    getCurrentItem: function(){
+      return data.currentItem;
+    },
     getTotalCalories: function() {
       let total = 0;
       //Loop through items and add calories
@@ -106,6 +124,12 @@ const UICtrl = (function(){
         calories:document.querySelector(UISelectors.itemCaloriesInput).value
       }
     },
+    addItemToForm: function()
+    {
+      document.querySelector(UISelectors.itemNameInput).value = ItemCtrl.getCurrentItem().name;
+      document.querySelector(UISelectors.itemCaloriesInput).value = ItemCtrl.getCurrentItem().calories;
+      UICtrl.showEditState();
+    },
     addListItem: function(item) {
       //Show the list 
       document.querySelector(UISelectors.itemList).style.display = 'block';
@@ -143,6 +167,12 @@ const UICtrl = (function(){
       document.querySelector(UISelectors.deleteBtn).style.display = 'none';
       document.querySelector(UISelectors.backBtn).style.display = 'none';
       document.querySelector(UISelectors.addBtn).style.display = 'inline';
+    },
+    showEditState: function () {
+      document.querySelector(UISelectors.updateBtn).style.display = 'inline';
+      document.querySelector(UISelectors.deleteBtn).style.display = 'inline';
+      document.querySelector(UISelectors.backBtn).style.display = 'inline';
+      document.querySelector(UISelectors.addBtn).style.display = 'none';
     },
     showTotalCalories: function(totalCalories) {
       document.querySelector(UISelectors.totalCalories).textContent = totalCalories;          
@@ -202,8 +232,16 @@ const App = (function(ItemCtrl, UICtrl){
       const listIdArr = listId.split('-');
 
       //Get the actual id
-      const id  = parseInt(listidArr[1]);
+      const id  = parseInt(listIdArr[1]);
       
+      //Get entire item
+      const itemToEdit = ItemCtrl.getItemById(id);
+
+      //set current item
+      ItemCtrl.setCurrentItem(itemToEdit);
+
+      //Add item to form
+      UICtrl.addItemToForm();
     }
     e.preventDefault();
   }
@@ -233,7 +271,6 @@ const App = (function(ItemCtrl, UICtrl){
       UICtrl.showTotalCalories(totalCalories);
 
       //Load event listeners
-
       loadEventListeners();
 
 
