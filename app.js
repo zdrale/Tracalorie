@@ -412,18 +412,25 @@ const App = (function(ItemCtrl, StorageCtrl, UICtrl){
 
   //Delete button 
 
-  const itemDeleteSubmit = function(e) {
-    //Get current item 
+  const itemDeleteSubmit = function(e){
+    // Get current item
     const currentItem = ItemCtrl.getCurrentItem();
 
-    //Delete from data structure
-    ItemCtrl.deleteItem(currentItem.id);
-    
-    //Delete from UI
+    // Delete from data structure
+    ItemCtrl.deleteItem(clientInformation);
+
+    // Delete from UI
     UICtrl.deleteListItem(currentItem.id);
 
-    //Delete form local storage
-    StorageCtrl.deleteItemFromStorage();
+    // Get total calories
+    const totalCalories = ItemCtrl.getTotalCalories();
+    // Add total calories to UI
+    UICtrl.showTotalCalories(totalCalories);
+
+    // Delete from local storage
+    StorageCtrl.deleteItemFromStorage(currentItem.id);
+
+    UICtrl.clearEditState();
 
     e.preventDefault();
   }
