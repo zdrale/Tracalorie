@@ -1,4 +1,50 @@
 //Storage Controller
+const StorageCtrl = (function(){
+  //Public methods
+  return {
+    storeItem: function(item){
+      let items;
+      //Chekc to if any items in ls
+
+      if(localStorage.getItem('items')===null){
+        items = [];
+        //push new item
+        items.push(item);
+
+        //Set ls 
+        localStorage.setItem('items', JSON.stringify(items)); //because ls can hold strings only by default
+      }else {
+        //Get what is already in ls and turn it back into object
+        items = JSON.parse(localStorage.getItem('items'));
+
+        //Push new item
+        items.push(item);
+        
+        //Reset ls
+        localStorage.setItem('items', JSON.stringify(items)); //because ls can hold strings only by default
+      }
+    },
+    getItemsFromStorage: function(){
+      let items;
+      if(localStorage.getItem('items') === null){
+        items=[];
+      } else {
+        items = JSON.parse(localStorage.getItem('items'));
+      }
+      return items;
+    },
+    updateItemStorage: function(updatedItem){
+      let items = JSON.parse(localStorage.getItem('items'));
+
+      items.forEach(function(item, index){
+        if(updateItem.id === item.id){
+          items.splice(index, 1, updateItem);  //remove 1 from where that index is and replace with updated item
+        }
+      });
+      localStorage.setItem('items', JSON.stringify(items)); //because ls can hold strings only by default
+    }
+  }
+})();
 
 //Item Controller
 const ItemCtrl = (function(){
@@ -12,17 +58,7 @@ const ItemCtrl = (function(){
 
   //Data structure  /State
   const data = {
-    items: [
-      // {
-      //   id: 0, name:'Stake Dinner', calories:1200
-      // },
-      // {
-      //   id: 1, name:'Coockie', calories:400
-      // },
-      // {
-      //   id: 2, name:'Eggs', calories:300
-      // }
-    ],
+    items: StorageCtrl.getItemsFromStorage(),
     currentItem: null,
     totalCalories: 0
   }
@@ -246,7 +282,7 @@ const UICtrl = (function(){
 
 })();
 //App Controller
-const App = (function(ItemCtrl, UICtrl){
+const App = (function(ItemCtrl, StorageCtrl, UICtrl){
   //Load all event listeners
   const loadEventListeners = function() {
     //Get UI Selectors
@@ -300,6 +336,9 @@ const App = (function(ItemCtrl, UICtrl){
 
       //Add total calories to UI
       UICtrl.showTotalCalories(totalCalories);
+      
+      //Store in localStorage
+      StorageCtrl.storeItem(newItem);
 
       //Clear Fields
       UICtrl.clearInput();
@@ -342,7 +381,6 @@ const App = (function(ItemCtrl, UICtrl){
     const updatedItem = ItemCtrl.updateItem(input.name, input.calories);
 
     //update ui
-
     UICtrl.updateListItem(updatedItem);
 
 
@@ -351,6 +389,9 @@ const App = (function(ItemCtrl, UICtrl){
 
     //Add total calories to UI
     UICtrl.showTotalCalories(totalCalories);
+
+    //Update local storage
+    StorageCtrl.updateItemStorage(updatedItem);
 
     UICtrl.clearEditState();
     e.preventDefault();
@@ -418,7 +459,7 @@ const App = (function(ItemCtrl, UICtrl){
 
     }
   }
-})(ItemCtrl,UICtrl);  
+})(ItemCtrl, StorageCtrl, UICtrl);  
 
 //Init app
 App.init();
